@@ -12,6 +12,7 @@ type MySQLStorage struct {
 	db *sql.DB
 }
 
+// Create a new MySQL storage instance
 func NewMySQLStorage(cfg mysql.Config) *MySQLStorage {
 	db, err := sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
@@ -28,6 +29,7 @@ func NewMySQLStorage(cfg mysql.Config) *MySQLStorage {
 	return &MySQLStorage{db: db}
 }
 
+// Initialize the MySQL storage
 func (s *MySQLStorage) Init() (*sql.DB, error) {
 	// initialize the tables
 	if err := s.createUsersTable(); err != nil {
@@ -45,6 +47,7 @@ func (s *MySQLStorage) Init() (*sql.DB, error) {
 	return s.db, nil
 }
 
+// Create the users table
 func (s *MySQLStorage) createUsersTable() error {
 	_, err := s.db.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
@@ -63,6 +66,7 @@ func (s *MySQLStorage) createUsersTable() error {
 
 }
 
+// Create the books table
 func (s *MySQLStorage) createBooksTable() error {
 	_, err := s.db.Exec(`
 		CREATE TABLE IF NOT EXISTS books (
@@ -79,6 +83,7 @@ func (s *MySQLStorage) createBooksTable() error {
 	return err
 }
 
+// Create the highlights table
 func (s *MySQLStorage) createHighlightsTable() error {
 	_, err := s.db.Exec(`
 		CREATE TABLE IF NOT EXISTS highlights (

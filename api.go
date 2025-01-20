@@ -18,14 +18,17 @@ func NewAPIServer(addr string, db *sql.DB) *APIServer {
 }
 
 func (s *APIServer) Run() {
+	// Initialize the router with path prefix
 	router := mux.NewRouter()
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
 
+	// Store holds the repository methods
 	store := NewStore(s.db)
 	mailer := NewSendGridMailer(Envs.SendGridAPIKey, Envs.SendGridFromEmail)
 
-	service := NewService(store, mailer)
-	service.RegisterRoutes(subrouter)
+	// Controller holds the API methods
+	controller := NewController(store, mailer)
+	controller.RegisterRoutes(subrouter)
 
 	log.Println("Starting API server on ", s.addr)
 

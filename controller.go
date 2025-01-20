@@ -11,21 +11,21 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type Service struct {
+type Controller struct {
 	store  Storage
 	mailer Mailer
 }
 
-func NewService(store Storage, mailer Mailer) *Service {
-	return &Service{store: store, mailer: mailer}
+func NewController(store Storage, mailer Mailer) *Controller {
+	return &Controller{store: store, mailer: mailer}
 }
 
-func (s *Service) RegisterRoutes(router *mux.Router) {
+func (s *Controller) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/users/{userID}/parse-kindle-file", s.handleParseKindleFile).Methods("POST")
 	router.HandleFunc("/cloud/send-daily-insights", s.handleSendDailyInsights).Methods("GET")
 }
 
-func (s *Service) handleParseKindleFile(w http.ResponseWriter, r *http.Request) {
+func (s *Controller) handleParseKindleFile(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userID := vars["userID"]
 
@@ -53,7 +53,7 @@ func (s *Service) handleParseKindleFile(w http.ResponseWriter, r *http.Request) 
 	WriteJSON(w, http.StatusOK, "Successfully parsed file")
 }
 
-func (s *Service) handleSendDailyInsights(w http.ResponseWriter, r *http.Request) {
+func (s *Controller) handleSendDailyInsights(w http.ResponseWriter, r *http.Request) {
 	// get users
 	users, err := s.store.GetUsers()
 	if err != nil {
@@ -89,6 +89,7 @@ func (s *Service) handleSendDailyInsights(w http.ResponseWriter, r *http.Request
 	WriteJSON(w, http.StatusOK, nil)
 }
 
+// Helper function to decode json file into a go struct
 func parseKindleExtractFile(file multipart.File) (*RawExtractBook, error) {
 	decoder := json.NewDecoder(file)
 
@@ -100,7 +101,7 @@ func parseKindleExtractFile(file multipart.File) (*RawExtractBook, error) {
 	return raw, nil
 }
 
-func (s *Service) createDataFromRawBook(raw *RawExtractBook, userID int) error {
+func (s *Controller) createDataFromRawBook(raw *RawExtractBook, userID int) error {
 	_, err := s.store.GetBookByISBN(raw.ASIN)
 	if err != nil {
 		s.store.CreateBook(Book{
@@ -131,7 +132,7 @@ func (s *Service) createDataFromRawBook(raw *RawExtractBook, userID int) error {
 	return nil
 }
 
-func (s *Service) buildInsights(hs []*Highlight) ([]*DailyInsight, error) {
+func (s *Controller) buildInsights(hs []*Highlight) ([]*DailyInsight, error) {
 	var insights []*DailyInsight
 
 	for _, h := range hs {
