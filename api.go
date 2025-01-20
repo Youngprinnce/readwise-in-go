@@ -24,10 +24,10 @@ func (s *APIServer) Run() {
 
 	// Store holds the repository methods
 	store := NewStore(s.db)
-	mailer := NewSendGridMailer(Envs.SendGridAPIKey, Envs.SendGridFromEmail)
+	// mailer := NewSendGridMailer(Envs.SendGridAPIKey, Envs.SendGridFromEmail)
 
 	// Controller holds the API methods
-	controller := NewController(store, mailer)
+	controller := NewController(store)
 	controller.RegisterRoutes(subrouter)
 
 	log.Println("Starting API server on ", s.addr)

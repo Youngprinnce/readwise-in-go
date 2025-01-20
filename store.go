@@ -35,18 +35,20 @@ func (s *Store) CreateBook(b Book) error {
 }
 
 func (s *Store) CreateHighlights(hs []Highlight) error {
-	values := []interface{}{}
-
-	query := "INSERT INTO highlights (text, location, note, userId, bookId) VALUES "
-	for _, h := range hs {
-		query += "(?, ?, ?, ?, ?),"
-		values = append(values, h.Text, h.Location, h.Note, h.UserID, h.BookID)
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
 	}
 
-	query = query[:len(query)-1]
+	for _, h := range hs {
+		_, err := tx.Exec("INSERT INTO highlights (text, location, note, userId, bookId) VALUES (?, ?, ?, ?, ?)", h.Text, h.Location, h.Note, h.UserID, h.BookID)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
 
-	_, err := s.db.Exec(query, values...)
-	if err != nil {
+	if err := tx.Commit(); err != nil {
 		return err
 	}
 
