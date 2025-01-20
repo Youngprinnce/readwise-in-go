@@ -53,7 +53,7 @@
 1. Clone the repository:
    ```bash
    git clone <https://github.com/youngprinnce/readwise-in.go>
-   cd readwise
+   cd readwise-in-go
    ```
 
 2. Create a `.env` file:
