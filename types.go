@@ -27,12 +27,12 @@ type Book struct {
 }
 
 type Highlight struct {
-	ID       int    `json:"id"`
-	Text     string `json:"text"`
-	Location string `json:"location"`
-	Note     string `json:"note"`
-	UserID   int    `json:"userId"`
-	BookID   string    `json:"bookId"`
+	ID        int       `json:"id"`
+	Text      string    `json:"text"`
+	Location  string    `json:"location"`
+	Note      string    `json:"note"`
+	UserID    int       `json:"userId"`
+	BookID    string    `json:"bookId"`
 	CreatedAt time.Time `json:"created_at"`
 }
 

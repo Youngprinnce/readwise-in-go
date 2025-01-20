@@ -1,8 +1,8 @@
 run: build
-	@./bin/notebase
+	@./bin/readwise
 
 build:
-	@go build -o bin/notebase
+	@go build -o bin/readwise
 
 test:
 	@go test -v ./...

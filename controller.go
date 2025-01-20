@@ -13,15 +13,16 @@ import (
 
 type Controller struct {
 	store  Storage
+	mailer Mailer
 }
 
-func NewController(store Storage) *Controller {
-	return &Controller{store: store}
+func NewController(store Storage, mailer Mailer) *Controller {
+	return &Controller{store: store, mailer: mailer}
 }
 
 func (s *Controller) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/users/{userID}/parse-kindle-file", s.handleParseKindleFile).Methods("POST")
-	// router.HandleFunc("/cloud/send-daily-insights", s.handleSendDailyInsights).Methods("GET")
+	router.HandleFunc("/cloud/send-daily-insights", s.handleSendDailyInsights).Methods("POST")
 }
 
 func (s *Controller) handleParseKindleFile(w http.ResponseWriter, r *http.Request) {
@@ -52,41 +53,41 @@ func (s *Controller) handleParseKindleFile(w http.ResponseWriter, r *http.Reques
 	WriteJSON(w, http.StatusOK, "Successfully parsed file")
 }
 
-// func (s *Controller) handleSendDailyInsights(w http.ResponseWriter, r *http.Request) {
-// 	// get users
-// 	users, err := s.store.GetUsers()
-// 	if err != nil {
-// 		WriteJSON(w, http.StatusInternalServerError, err.Error())
-// 		return
-// 	}
+func (s *Controller) handleSendDailyInsights(w http.ResponseWriter, r *http.Request) {
+	// get users
+	users, err := s.store.GetUsers()
+	if err != nil {
+		WriteJSON(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 
-// 	// loop over users and get random highlights
-// 	for _, u := range users {
-// 		hs, err := s.store.GetRandomHighlights(3, u.ID)
-// 		if err != nil {
-// 			WriteJSON(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
+	// loop over users and get random highlights
+	for _, u := range users {
+		hs, err := s.store.GetRandomHighlights(3, u.ID)
+		if err != nil {
+			WriteJSON(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 
-// 		if len(hs) == 0 {
-// 			continue
-// 		}
+		if len(hs) == 0 {
+			continue
+		}
 
-// 		insights, err := s.buildInsights(hs)
-// 		if err != nil {
-// 			WriteJSON(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
+		insights, err := s.buildInsights(hs)
+		if err != nil {
+			WriteJSON(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 
-// 		err = s.mailer.SendInsights(insights, u)
-// 		if err != nil {
-// 			WriteJSON(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
-// 	}
+		err = s.mailer.SendInsights(insights, u)
+		if err != nil {
+			WriteJSON(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
 
-// 	WriteJSON(w, http.StatusOK, nil)
-// }
+	WriteJSON(w, http.StatusOK, nil)
+}
 
 // parseKindleExtractFile decodes a JSON file into a RawExtractBook struct.
 func parseKindleExtractFile(file multipart.File) (*RawExtractBook, error) {
